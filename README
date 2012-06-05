@@ -1,0 +1,26 @@
+Phonegap 1.6+ (Cordova) Background Notification Service Plugin
+
+v0.1 BETA
+Michael Rzeznik
+
+This plugin makes it easy for you to set up background notification services. Data is saved to a SQLite database and can be extracted/manipulated using the javascript functions. Stopping and starting the service is possible with the functions.
+
+Installation:
+
+1. copy files in /plugin to your plugin directoty inside xcode
+2. reference the /js/.js file in your html index
+3. CDVRezLocation   String  CDVRezLocation to your Cordova.plist file
+
+Everything is contained within the app plugin files for easy of updating.
+
+~release 0.1~
+Initial release
+
+default values:
+distanceFilter = 250km;
+disiredAccuracy = kCLLocationAccuracyNearestTenMeters
+
+
+
+major updates coming soon!
+michael.rzeznik@gmail.com
