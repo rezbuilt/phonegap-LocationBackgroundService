@@ -1,432 +1,36 @@
 <html>
 <head>
-  <title>RoverTown</title>
-  <meta charset="utf-8">
+  <title>Rez Location</title>
   <meta name="viewport" content="initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+  
   <link rel="stylesheet" type="text/css" href="css/style.css">
-  <link rel="stylesheet" type="text/css" href="css/bacon.css">
-  <link rel="stylesheet" href="css/jquery.mobile.structure-1.0.css"> 
-  <link rel="stylesheet" href="http://rovertown.com/rover/css/inject/ios.css"> 
-
 </head>
 
 <body>
   <!-- This initializes the Facebook JS SDK. -->
-    <div id="fb-root"></div>
-    <div id="rez-root"></div>
-
+  <div id="fb-root"></div>
+  <!--<script src=" http://connect.facebook.net/en_US/all.js"></script>-->
   <script src="cordova-1.7.0.js"></script>
     <!-- cordova facebook plugin -->
   	<script src="cdv-plugin-fb-connect.js"></script>
-    <!-- facebook js sdk -->
-  	<script src="facebook_js_sdk.js"></script>
-    <script src="js/barcodescanner.js"></script>
-    <script src="js/jQuery.js"></script>
-    <script src="js/jqm.js"></script>
-    <script src="js/core.js"></script>
-    
-		<style type="text/css" media="screen">
-			#map_canvas {
-				height: 500px;
-				background-color: rgba(255,255,255,.3);
-			}
-				body.connected .fbNotLoggedIn {
-					display:none !important;
-				}
-				body.connected .fbLoggedIn {
-					display:block !important;
-				}
-				.fbLoggedIn {
-					display:none !important;
-				}			
-		</style>
-<script>
-  
-	var schoolIdCheck = 0;
-	var userIdCheck = 0;
-	var pops = 0;
+	<script src="js/rezLocation.js"></script>
+    <script>
+function start(){  RezLocation.start(
+      ["HelloWorld"],
+      function(result) {
+           //alert("Success: \r\n"+result);      
+      },
+      function(error) {
+           alert("Error: \r\n"+error);      
+      }
+  ); 
+	}
 	
-	function loginUser() {    
-	promptLogin();
-	}	 
-		function populateSchools(){
-				$.ajax({
-				type: "POST",
-				url: "http://rovertown.com/services/lists.php",
-				dataType: "json",
-				data: { action:'schools'},
-				  success: function(data) {					
-						 $.each(data, function(i,school){
-							 $('#schoolselect').append('<option value="' + school.id + '" selected>' + school.school+ '</option>');
-							 $("#schoolselect").val(0);
-						  });		
-				  }	
-				});
-		  }
-		  function bacon(bus_id){
-			  //navigator.geolocation.getCurrentPosition(function (location) {
-							$.mobile.showPageLoadingMsg();	
-							$.ajax({
-							type: "POST",
-							url: "http://rovertown.com/rover/pages/business.php",
-							 data: { id:bus_id,lat:'0' ,lon:'0'},
-							  success: function(data) {	
-							  $.mobile.hidePageLoadingMsg();
-							    $('#businessRedeem').hide();
-								$('#businessContent').show();
-								$.mobile.changePage($('#business'), { transition: "slideup",allowSamePageTransition : true, reloadPage:true} );
-								$('#businessContent').html(data).trigger( "create" ).listview('refresh');
-	
-								
-								
-							  }	
-							});								
-																		 
-													   
-			 //});
-		  }
-		  
- function sharePoster(deal_id,desc,urlto,bus,picture,caption){
+function points(){ 
+//var db = window.openDatabase("Partylocation.db", "1.0", "Locations", 200000);
+//db.transaction(queryDB, errorCB);
 
-				
-  FB.ui({
-    method: 'feed',
-    name:  bus,
-    caption: caption,
-    description: desc,
-    link: urlto,
-    picture: picture
-  }, 
-  function(response) {
-    //console.log('publishStory UI response: ', response);
-  });			
- }
-		  
-		  
- function redeemDealFix(deal_id,desc,urlto,bus,picture,caption){
-
-				
-  FB.ui({
-    method: 'feed',
-    name:  bus,
-    caption: caption,
-    description: desc,
-    link: urlto,
-    picture: picture
-  }, 
-  function(response) {
-    //console.log('publishStory UI response: ', response);
-  });				
-					
-					
-						
-	if(!localStorage.getItem('user')){
-		localStorage.setItem('user','0');
-	} 
-	user = localStorage.getItem('user');
-					
-	$('#businessRedeem').show();
-	
-	$('#businessPageContent').hide();
-	$('#businessPageContent').empty();
-	
-    
-	$('#businessContent').hide();
-	$('#businessContent').empty();	
-					
-	$('#businessRedeem').empty();
-	  $('#footerDeals').fadeIn(100);
-	  $('#homeListView').fadeIn(100);
-	  $.mobile.showPageLoadingMsg();	
-	  $.ajax({
-	  type: "POST",
-	  url: "http://rovertown.com/rover/pages/deal.php",
-	  data: { id:deal_id, user:user},
-		success: function(data) {		
-		  $.mobile.hidePageLoadingMsg();
-		  $('#businessRedeem').html(data).trigger( "create" ).listview('refresh');
-
-		}	
-	  });						
-
- }	
-		  
-		  
-		  
-					  function loadNewest(){
-						  $('#homeListView').show();
-						  $('#homeMainView').hide();
-							$('#footerDeals').fadeIn(100);
-							$('#homeListView').fadeIn(100);
-							$.mobile.showPageLoadingMsg();	
-							$.ajax({
-							type: "POST",
-							url: "http://rovertown.com/rover/ajax/lists.php",
-							data: { action:'getNewest', id:schoolIdCheck},
-							  success: function(data) {		
-								$.mobile.hidePageLoadingMsg();
-								$('#listContent').html(data).listview('refresh');
-	
-							  }	
-							});
-					  }
-					  function popular(){
-							$.mobile.showPageLoadingMsg();	
-							$.ajax({
-							type: "POST",
-							url: "http://rovertown.com/rover/ajax/lists.php",
-							data: { action:'getPopular', id:schoolIdCheck},
-							  success: function(data) {		
-								$.mobile.hidePageLoadingMsg();
-								$('#listContent').html(data).trigger( "create" ).listview('refresh');
-	
-							  }	
-							});
-					  };	
-					  function newest(){
-						   $('#footerDeals').fadeIn(100);
-							$.mobile.showPageLoadingMsg();	
-							$.ajax({
-							type: "POST",
-							url: "http://rovertown.com/rover/ajax/lists.php",
-							data: { action:'getNewest', id:schoolIdCheck},
-							  success: function(data) {		
-								$.mobile.hidePageLoadingMsg();
-								$('#listContent').html(data).trigger( "create" ).listview('refresh');
-	
-							  }	
-							});
-					  };				  			  
-					  function allList(){
-							$.mobile.showPageLoadingMsg();	
-							$.ajax({
-							type: "POST",
-							url: "http://rovertown.com/rover/ajax/lists.php",
-							data: { action:'getAll', id:schoolIdCheck},
-							  success: function(data) {		
-								$.mobile.hidePageLoadingMsg();
-								$('#listContent').html(data).trigger( "create" ).listview('refresh');
-	
-							  }	
-							});
-					  };
-					  
-                function homeFreshMain(){
-                    schoolSelect = $('select#schoolselect option:selected').val();
-					if(schoolSelect === '0'){
-						navigator.notification.alert('You must select a school to continue');
-					} else {					
-                    schoolIdCheck = schoolSelect;
-                    homeFresh();
-					$.mobile.changePage('#home');
-					
-					}
-                };					  
-						
-					  function homeFresh(){
-						  $('#homeMainView').empty();
-						  $('#footerDeals').hide();
-						  $('#homeListView').hide();
-						  $('#homeMainView').show();
-						  user = window.localStorage.getItem('user');
-							$.mobile.showPageLoadingMsg();	
-							$.ajax({
-							type: "POST",
-							url: "http://rovertown.com/rover/pages/home.php",
-							data: {id:schoolIdCheck, user:user, device:'1'},
-							  success: function(data) {		
-								$.mobile.hidePageLoadingMsg();
-								$('#homeMainView').html(data).fadeIn(100).trigger( "create" );
-	
-							  }	
-							});					  
-						  
-					  }
-					  
-					  //MR NEW IOS
-					  function favorites(){
-						  $('#homeMainView').empty();
-						  $('#footerDeals').hide();
-						  $('#homeListView').hide();
-						  $('#homeMainView').show();
-						  	
-							user = window.localStorage.getItem('user');
-
-							$.mobile.showPageLoadingMsg();	
-							$.ajax({
-							type: "POST",
-							url: "http://rovertown.com/rover/pages/favorites.php",
-							data: {id:schoolIdCheck, user:user},
-							  success: function(data) {		
-								$.mobile.hidePageLoadingMsg();
-								$('#homeMainView').html(data).fadeIn(100).trigger( "create" );
-								
-							  }	
-							});					  
-					  }				  
-					  //
-					  //MORE
-					  function saveBusinesses(){
-						  user = window.localStorage.getItem('user');
-						  
-						  formDataBus = "choice[]=" + encodeURIComponent($('select#choiceOne option:selected').val());
-						  formDataBus += "&choice[]=" + encodeURIComponent($('select#choiceTwo option:selected').val());
-						  formDataBus += "&choice[]=" + encodeURIComponent($('select#choiceThree option:selected').val());
-						  formDataBus += "&id=" + encodeURIComponent(user);
-						  formDataBus += "&action=" + encodeURIComponent('saveFavorites');
-							//$.mobile.showPageLoadingMsg();	
-							$.ajax({
-							type: "POST",
-							url: "http://rovertown.com/rover/ajax/user.php",
-							data: formDataBus,
-							  success: function(data) {		
-								//$.mobile.hidePageLoadingMsg();
-								//alert('Your favorites have been saved');
-							  }	
-							});						  
-					  }
-					  function faveList(){
-						   user = window.localStorage.getItem('user');
-							$.mobile.showPageLoadingMsg();	
-							$.ajax({
-							type: "POST",
-							url: "http://rovertown.com/rover/ajax/user.php",
-							data: { action:'getFave', user_id:user},
-							  success: function(data) {		
-								$.mobile.hidePageLoadingMsg();
-								$('#listContent').html(data).trigger( "create" ).listview('refresh');
-	
-							  }	
-							});
-					  };	
-					  
-					  function loadListFave(){
-						  $('#homeListView').show();
-						  $('#homeMainView').hide();
-							$('#footerDeals').fadeIn(100);
-							$('#homeListView').fadeIn(100);
-							faveList();
-					  }				  				  
-					  
-					  function redeemDeal(deal_id){
-						  if(typeof app != 'undefined'){
-						  app.createPost('I just redeemed a deal at ','');
-							}
-							
-							
-							
-						  $('#businessRedeem').show();
-						  $('#businessContent').hide();
-						  $('#businessContent').empty();
-						  $('#businessRedeem').empty();
-							$('#footerDeals').fadeIn(100);
-							$('#homeListView').fadeIn(100);
-							$.mobile.showPageLoadingMsg();	
-							$.ajax({
-							type: "POST",
-							url: "http://rovertown.com/rover/pages/deal.php",
-							data: { id:deal_id},
-							  success: function(data) {		
-								$.mobile.hidePageLoadingMsg();
-								$('#businessRedeem').html(data).trigger( "create" ).listview('refresh');
-	
-							  }	
-							});						
-	
-					  }		
-	
-      function scanner(){
-          window.plugins.barcodeScanner.scan(
-               function(result) {
-                   var value = result.text;
-                                            if(value.substr(0, 24) === 'http://rovertown.com/?q='){
-                                             id = value.substr(24);
-                                            runQrPage(id);
-                                             } else {
-                                             navigator.notification.alert('This code was not recognized. Please try again.');
-                                             }
-
-                },
-                function(error) {
-                }
-               )          
-          
-      }		
-
-
-      function runQrPage(qr_id){
-          //navigator.geolocation.getCurrentPosition(function (location) {
-					    $.mobile.showPageLoadingMsg();	
-						$.ajax({
-						type: "POST",
-						url: "http://rovertown.com/bacon/pages/business.php",
-						data: { id:qr_id,lat:'0' ,lon:'0', action:'qrCheck'},
-						  success: function(data) {	
-						  $.mobile.hidePageLoadingMsg();
-						  $.mobile.changePage($('#business'), { transition: "slideup",allowSamePageTransition : true, reloadPage:true} );
-						  $('#businessPageContent').html(data).trigger( "create" ).listview('refresh');
-						  }	
-						});		
-        // });
-      }        
-		
-		
-		
-				  document.addEventListener("resume", injectResumer, false);
-
-				  document.addEventListener("deviceready", injectReady, false);
-
-				  function injectResumer(){
-					  
-					  if(pops === 0){
-					  	populateSchools();
-						pops === 1;
-					  } 
-					  					  
-					  user = localStorage.getItem('user');
-					  uid = device.uuid;
-					  action = 2;
-					  version = 2;
-					  device = 1;					  
-					  
-						$.ajax({
-						type: "POST",
-						url: "http://rovertown.com/services/inject.php",
-						data: {user:user,uid:uid,action:action,version:version,device:device},
-						  success: function(data) {		
-							$('#rez-root').empty();
-							$('#rez-root').html(data);
-						  }	
-						});						  
-				  }
-				  
-				  function injectReady(){
-
-					  if(pops === 0){
-					  	populateSchools();
-						pops === 1;
-					  } 
-					  
-					  user = localStorage.getItem('user');
-					  uid = device.uuid;
-					  action = 1;
-					  version = 2;
-					  device = 1;
-					  
-					$.ajax({
-						type: "POST",
-						url: "http://rovertown.com/services/inject.php",
-						data: {user:user,uid:uid,action:action,version:version,device:device},
-						  success: function(data) {	
-							$('#rez-root').empty();
-							$('#rez-root').html(data);
-						  }	
-					});						  
-					  
-				  }	
-					 function tester(){
-						 alert('init');
-						   RezLocation.start(
+ RezLocation.getPoints(
       ["HelloWorld"],
       function(result) {
            alert("Success: \r\n"+result);      
@@ -435,130 +39,55 @@
            alert("Error: \r\n"+error);      
       }
   ); 
-					 }
-    
-    
-					  </script>
-		<div data-role="page" id="page" class="type-interior">
+	}
+function stoppin(){ 
 
+ RezLocation.stopin(
+      ["HelloWorld"],
+      function(result) {
+           //alert("Success: \r\n"+result);      
+      },
+      function(error) {
+           alert("Error: \r\n"+error);      
+      }
+  ); 
+}	 
+
+
+	
+
+	</script>
+  <div id="header">
+    <div id="title">Title</div>
+
+    <div id="right-block">
+      <div class="show_when_not_connected">
+        <a onClick="promptLogin()" class="login-button"> 
+          <span>Login</span>
             
-            <div id="headerhome"><!-- header -->
-				<div id="logoContainer">
-					<h1 class="logo" onclick="tester()"></h1>
-					<h2 class="subtext">throwin' you bones</h2>
-				</div>				
-			</div><!-- header -->
-				  
-			<div id="selectschool"><!-- selectschool -->    
-				<form id="ajax_post" action="pages/main.php" method="POST" class="form">
-					<div id="schoolselectbox">
-						<select name="school" id="schoolselect">
-							<option value="0" selected>Select your university</option>
-						</select> 
-					</div> 
-					<a onClick="loginUser()" class="fbButton fbNotLoggedIn" data-role="button">Login with Facebook</a> 
-					<a onClick="homeFreshMain()" class="fbButton" data-role="button">Enter Rovertown</a> 
-				</form>	   
-			</div><!-- selectschool -->
-						  
-			<div id="main"><!-- main --> 
-				<div class="mainShadow"></div>
-					<!--<h2> This dog's got a few neat tricks. </h2>-->
-			
-					<p>RoverTown is a <strong>FREE</strong> mobile coupon booklet for your university. Save money everywhere you love. Never forget your coupons at home again.</p>
-					<a href="#" onClick="logout();" class="fbButton fbLoggedIn " data-role="button">Logout</a> 		
-					<!-- Food section description
-						<h3>local menus</h3>
-						<p>Find out who delivers to your "pad."</p>
-					-->
-			</div><!-- main --> 
-				  			  
-			<div id="footerhome"><!-- footer --> 
-				<p>&copy; 2011 Rover Enterprises</p>			
-				<div id="cap20">CAP20</div>
-			</div><!-- footer --> 	
-		</div>	
-	
-		<div data-role="page" id="home" class="type-interior">
-			<div data-role="header" data-position="fixed">
-            	<a data-icon="search" class="ui-btn-right" onClick="scanner();" style="position:absolute; top:7px; right:10px;">Scan</a>
-				<h1><img src="img/logo_white-Retina.png" alt="Rovertown" class="logo"></h1>
-				<!-- <a href="#page2" data-icon="star" class="ui-btn-right">Account</a>-->
-				<div data-role="navbar">
-				<ul>
-					<li><a onClick="homeFresh()" class="ui-btn-active">Home</a></li>
-					<li><a onClick="loadNewest()" >Deals</a></li>
-					<li><a onClick="favorites()">Favorites</a></li>
-				</ul>
-			</div><!-- /navbar -->		
-			</div>
-			<div data-role="content" >	
-				<div id="homeListView" style="display:none">
-					<ul data-role="listview" id="listContent" data-filter="true" data-filter-placeholder="Search Deals..." ></ul>
-				</div>
-				<div id="homeMainView" style="display:none"></div>          
-			</div>
-			<div data-role="footer" data-position="fixed" id="footerDeals">
-				<div data-role="navbar" data-iconpos="top">
-					<ul>
-						<li><a onClick="newest()" data-icon="alert" class="ui-btn-active">New</a></li>
-						<li><a onClick="popular()" data-icon="star" >Popular</a></li>
-						<li><a onClick="allList()" data-icon="grid">All</a></li>
-						<li><a onClick="faveList()" data-icon="info">Favorites</a></li>
-						<!--<li><a href="#" data-icon="search">My Account</a></li>-->
-					</ul>
-				</div><!-- /navbar -->
-			</div>    			
-		</div>
-	
-		<div data-role="page" id="business" class="type-interior">
-			<div data-role="header" data-position="fixed">
-				<a data-icon="arrow-l" data-rel="back" class="ui-btn-left" style="position:absolute; top:7px; left:10px;">Back</a>
-				<h1><img src="img/logo_white-Retina.png" alt="Rovertown" class="logo"></h1>    
-			</div>
-			<div data-role="content" id="businessContent"></div>
-			<div data-role="content" id="businessRedeem"></div>
-		</div>  
-	
-		<div data-role="page" id="page4">
-			<div data-role="header">
-				<h1>Page Four</h1>
-			</div>
-			<div data-role="content">	
-				Content		
-			</div>
-			<div data-role="footer">
-				<h4>Page Footer</h4>
-			</div>
-		</div>
-  <!--<script src="js/_config.js"></script>-->
-  <script src="js/ui.js"></script>
-    
-    
-<script src="js/rezLocation.js"></script>
-    
-    
-    
-  <script src="js/auth.js"></script>
-  <script src="js/feed.js"></script>
-    <script src="js/graph_api.js"></script>
-  <script src="js/requests.js"></script>
-  <!--<script src="js/credits.js"></script>-->
+        </a>
+      </div>
+    </div>
+  </div>
   
-  <script>
+  <div id="action">
+    <div id="loading-icon"></div>
+  
+    <div id="msg"></div>
+  </div>
+  
+  <!-- Page: Homepage -->
+  <div id="page-root" class="page">
+      <div class="show_when_connected">
+        <div id="welcome"><img id="user-picture" /><br /><span id="user-name"></span></div>
+      </div>
 
-  if ((typeof Cordova == 'undefined') || (typeof cordova == 'undefined')) alert('Cordova variable does not exist. Check that you have included cordova.js correctly');
-  if (typeof CDV == 'undefined') alert('CDV variable does not exist. Check that you have included pg-plugin-fb-connect.js correctly');
-  if (typeof FB == 'undefined') alert('FB variable does not exist. Check that you have included the Facebook JS SDK file.');
-  
-  document.addEventListener('deviceready', function() {
-                            try {
-                            //alert('Device is ready! Make sure you set your app_id below this alert.');
-                            FB.init({ appId: "158029174228429", nativeInterface: CDV.FB, useCachedDialogs: false });
-                            } catch (e) {
-                            alert(e);
-                            }
-                            }, false);
-  </script>
+     <ul>
+             <li class="menu-item" onClick="start();">Rez Location Start</li>
+             <li class="menu-item" onClick="points();">Get Points</li>
+             <li class="menu-item" onClick="stoppin();">Stop Location Grab</li>
+
+    </ul>
+  </div>
 </body>
 </html>
